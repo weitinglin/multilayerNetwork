@@ -1,0 +1,16 @@
+{
+  "nodes": [
+    {"id": "MUC1", "group": 1},
+    {"id": "CREB1", "group": 2},
+    {"id": "STAT1", "group": 3},
+    {"id": "STAT6", "group": 3},
+    {"id": "JAK1", "group": 3}
+  ],
+  "links": [
+    {"source": "MUC1", "target": "CREB1", "value": 1},
+    {"source": "CREB1", "target": "STAT1", "value": 2},
+    {"source": "STAT1", "target": "MUC1", "value": 3},
+     {"source": "STAT1", "target": "STAT6", "value": 3},
+      {"source": "JAK1", "target": "STAT6", "value": 3}
+  ]
+}
