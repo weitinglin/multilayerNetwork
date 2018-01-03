@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+    
+#paper {
+ border:15px solid black;     
+ 
+        
+}
+ 
+#inpaper {
+ transform: rotate3d(-1, 1, 1, 30deg);
+ border:10px solid blue; 
+}
+
+#inpaperbg {
+ transform: rotate3d(1, 0.5, 0, 70deg);  
+}
+
+#inpaperbg2 {
+ transform: rotate3d(1, 0.5, 0, 70deg);  
+}
+
+#inpaperbg3 {
+ transform: rotate3d(1, 0.5, 0, 70deg);  
+}
+    
+.inpaperbgclass {
+ transform: rotate3d(1, 0.5, 0, 70deg);  
+}
+    
+</style>
+<svg id="paper" width="960" height="600"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+var svgContainer = d3.select("svg")
+
+var svgBG = svgContainer.append("rect")
+    .attr("id", "inpaperbg")
+    .attr("x", 200)
+    .attr("y", -20)
+    .attr("width", 960*0.5)
+    .attr("height", 600*0.5)
+    .attr("fill", "lemonchiffon")
+    .attr("stroke",'black')
+
+
+var svgBG2 = svgContainer.append("rect")
+    .attr("id", "inpaperbg2")
+    .attr("x", 100)
+    .attr("y", 100)
+    .attr("width", 960*0.5)
+    .attr("height", 600*0.5)
+    .attr("fill", "pink")
+    .attr("fill-opacity", 0.5)
+    .attr("stroke",'black')
+
+var svgBG3 = svgContainer.append("rect")
+    .attr("id", "inpaperbg3")
+    .attr("x", 10)
+    .attr("y", 200)
+    .attr("width", 960*0.5)
+    .attr("height", 600*0.5)
+    .attr("fill", "green")
+    .attr("fill-opacity", 0.3)
+    .attr("stroke",'black')
+
+svgContainer.append("circle")
+       .attr("cx",100)
+       .attr("cy",400)
+       .attr("r",5)
+       .attr("class",'inpaperbgclass')
+    .call(d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended))
+
+svgContainer.append("circle")
+       .attr("cx",300)
+       .attr("cy",0)
+       .attr("r",5)
+       .attr("class",'inpaperbgclass')
+svgContainer.append("circle")
+       .attr("cx",40)
+       .attr("cy",220)
+       .attr("r",5)
+       .attr("class",'inpaperbgclass')
+
+svgContainer.append("line")
+       .attr("x1",40)
+       .attr("y1",220)
+       .attr("x2",300)
+       .attr("y2",0)
+       .attr("class",'inpaperbgclass').style('stroke', 'grey').style('stroke-width', 2)
+
+var svgBGx = d3.select("#inpaperbg").attr("x")
+var svgBGy = d3.select("#inpaperbg").attr("y")
+var svgBGheight = d3.select("#inpaperbg").attr("height")
+var svgBGwidth = d3.select("#inpaperbg").attr("width")
+
+var nextsvgcir = Number(svgBGx) + Number(svgBGwidth)
+console.log(nextsvgcir)
+
+
+
+var svg = svgContainer.append("svg").attr("id", "inpaper"),
+    width = +svgContainer.attr("width"),
+    height = +svgContainer.attr("height");
+    
+
+
+    
+var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function(d) { return d.id; }))
+    .force("charge", d3.forceManyBody())
+    .force("center", d3.forceCenter(width / 2, height / 2));
+
+    
+d3.json("miserables.json", function(error, graph) {
+  if (error) throw error;
+
+  var link = svg.append("g")
+      .attr("class", "links")
+      .selectAll("line")
+      .data(graph.links)
+      .enter().append("line")
+      .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+  var node = svg.append("g")
+                .attr("class", "nodes")
+    .selectAll("circle")
+    .data(graph.nodes)
+    .enter().append("circle")
+    .attr("r", 5)
+    .attr("fill", function(d) { return color(d.group); })
+    .call(d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended));
+
+  node.append("title")
+      .text(function(d) { return d.id; });
+
+  simulation
+      .nodes(graph.nodes)
+      .on("tick", ticked);
+
+  simulation.force("link")
+      .links(graph.links);
+
+  function ticked() {
+    link
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+  }
+});
+
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
+
+</script>
+
